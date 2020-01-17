@@ -99,33 +99,45 @@ server.get('/api/projects/:id', validateProjectId, (req, res) => {
     }
 });
 
-server.post('/api/projects', (req, res) => {
+server.post('/api/projects', validateProject, (req, res) => {
     try {
-
+        const newProject = {
+            name: req.body.name,
+            description: req.body.description
+        }
+        projectDB.insert(newProject)
+        .then(project => res.status(201).json({ message: 'project was successfully created' }));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
 });
 
-server.put('/api/projects/:id', (req, res) => {
+server.put('/api/projects/:id', validateProjectId, validateProject, (req, res) => {
     try {
-
+        const updateProject = {
+            name: req.body.name,
+            description: req.body.description
+        }
+        projectDB.update(req.post, updateProject)
+        .then(project => res.send(project));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
 });
 
-server.delete('/api/projects/:id', (req, res) => {
+server.delete('/api/projects/:id', validateProjectId, (req, res) => {
     try {
-
+        projectDB.remove(req.post)
+        .then(response => res.sendStatus(204));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
 });
 
-server.get('/api/projects/:id/actions', (req, res) => {
+server.get('/api/projects/:id/actions', validateProjectId, (req, res) => {
     try {
-
+        projectDB.getProjectActions(req.post)
+        .then(actions => res.send(actions));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
@@ -156,7 +168,7 @@ function validateActionId(req, res, next) {
     projectDB.get(id)
     .then(project => {
       if(project) {
-        req.post = project.id;
+        req.post = req.params.id;
         next();
       } else {
         res.status(400).json({ message: "invalid project id" });
@@ -175,7 +187,7 @@ function validateActionId(req, res, next) {
 
   function validateAction(req, res, next) {
     // do your magic!
-    if(req.body.project_id && req.body.description && req.body.notes && req.body.completed) {
+    if(req.body.project_id && req.body.description && req.body.notes) {
       next();
     } else {
       res.status(400).json({ message: "missing required fields" });
