@@ -18,54 +18,150 @@ const express = require('express');
 const server = express();
 server.use(express.json());
 
+const projectDB = require('./data/helpers/projectModel');
+const actionDB = require('./data/helpers/actionModel');
+
 // ACTION ENDPOINTS
-server.get('/api/', (req, res) => {
+server.get('/api/actions', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
-server.get('/api/', (req, res) => {
+server.get('/api/actions/:id', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
-server.post('/api/', (req, res) => {
+server.post('/api/actions', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
-server.put('/api/', (req, res) => {
+server.put('/api/actions/:id', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
-server.delete('/api/', (req, res) => {
+server.delete('/api/actions/:id', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
 
 //PROJECT ENDPOINTS
-server.get('/api/', (req, res) => {
+server.get('/api/projects', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
-server.get('/api/', (req, res) => {
+server.get('/api/projects/:id', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
-server.post('/api/', (req, res) => {
+server.post('/api/projects', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
-server.put('/api/', (req, res) => {
+server.put('/api/projects/:id', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
-server.delete('/api/', (req, res) => {
+server.delete('/api/projects/:id', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
 });
 
-server.get('/api/', (req, res) => {
+server.get('/api/projects/:id/actions', (req, res) => {
+    try {
 
+    } catch {
+        res.status(500).json({ error: 'an error has occurred'});
+    }
+});
+
+server.use(function(req, res) {
+    res.status(404).send(`No such route`);
 });
 
 // Middleware
+function validateActionId(req, res, next) {
+    // do your magic!
+    const id = req.params.id;
+    actionDB.get(id)
+    .then(action => {
+      if(action) {
+        req.post = action.id;
+        next();
+      } else {
+        res.status(400).json({ message: "invalid action id" });
+      }
+    })
+  }
+
+  function validateProjectId(req, res, next) {
+    // do your magic!
+    const id = req.params.id;
+    projectDB.get(id)
+    .then(project => {
+      if(project) {
+        req.post = project.id;
+        next();
+      } else {
+        res.status(400).json({ message: "invalid project id" });
+      }
+    })
+  }
+
+  function validateProject(req, res, next) {
+    // do your magic!
+    if(req.body.name && req.body.description) {
+      next();
+    } else {
+      res.status(400).json({ message: "missing required fields" });
+    }
+  }
+
+  function validateAction(req, res, next) {
+    // do your magic!
+    if(req.body.project_id && req.body.description && req.body.notes) {
+      next();
+    } else {
+      res.status(400).json({ message: "missing required fields" });
+    }
+  }
 
 
 const port = process.env.PORT || 8000;
