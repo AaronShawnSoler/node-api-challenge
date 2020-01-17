@@ -24,39 +24,56 @@ const actionDB = require('./data/helpers/actionModel');
 // ACTION ENDPOINTS
 server.get('/api/actions', (req, res) => {
     try {
-
+        actionDB.get()
+        .then(actions => res.send(actions));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
 });
 
-server.get('/api/actions/:id', (req, res) => {
+server.get('/api/actions/:id', validateActionId, (req, res) => {
     try {
-
+        actionDB.get(req.post)
+        .then(action => res.send(action));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
 });
 
-server.post('/api/actions', (req, res) => {
+server.post('/api/actions', validateAction, (req, res) => {
     try {
-
+        const newAction = {
+            project_id: req.body.project_id,
+            description: req.body.description,
+            notes: req.body.notes,
+            completed: req.body.completed
+        }
+        actionDB.insert(newAction)
+        .then(action => res.status(201).send(action));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
 });
 
-server.put('/api/actions/:id', (req, res) => {
+server.put('/api/actions/:id', validateActionId, validateAction, (req, res) => {
     try {
-
+        const updateAction = {
+            project_id: req.body.project_id,
+            description: req.body.description,
+            notes: req.body.notes,
+            completed: req.body.completed
+        }
+        actionDB.update(req.post, updateAction)
+        .then(action => res.send(action));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
 });
 
-server.delete('/api/actions/:id', (req, res) => {
+server.delete('/api/actions/:id', validateActionId, (req, res) => {
     try {
-
+        actionDB.remove(req.post)
+        .then(response => res.sendStatus(204));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
@@ -66,15 +83,17 @@ server.delete('/api/actions/:id', (req, res) => {
 //PROJECT ENDPOINTS
 server.get('/api/projects', (req, res) => {
     try {
-
+        projectDB.get()
+        .then(projects => res.send(projects));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
 });
 
-server.get('/api/projects/:id', (req, res) => {
+server.get('/api/projects/:id', validateProjectId, (req, res) => {
     try {
-
+        projectDB.get(req.post)
+        .then(project => res.send(project));
     } catch {
         res.status(500).json({ error: 'an error has occurred'});
     }
@@ -123,7 +142,7 @@ function validateActionId(req, res, next) {
     actionDB.get(id)
     .then(action => {
       if(action) {
-        req.post = action.id;
+        req.post = req.params.id;
         next();
       } else {
         res.status(400).json({ message: "invalid action id" });
@@ -156,7 +175,7 @@ function validateActionId(req, res, next) {
 
   function validateAction(req, res, next) {
     // do your magic!
-    if(req.body.project_id && req.body.description && req.body.notes) {
+    if(req.body.project_id && req.body.description && req.body.notes && req.body.completed) {
       next();
     } else {
       res.status(400).json({ message: "missing required fields" });
